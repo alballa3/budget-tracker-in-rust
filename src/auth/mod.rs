@@ -1,23 +1,107 @@
-use argon2::password_hash::SaltString;
+use std::fs;
 
-pub struct Session {
-    pub username: String,
-    pub password: String,
-}
-// pub fn register(username: &str, password: &str)  {
+use crate::{
+    database::{
+        connect_database,
+        models::{NewUser, User},
+    },
+    schema::{self},
+};
+use diesel::result::{DatabaseErrorKind, Error};
 
-// }
+use bcrypt::{DEFAULT_COST, hash};
+use dialoguer::{Input, Password};
+use diesel::{
+    ExpressionMethods, RunQueryDsl, SelectableHelper,
+    query_dsl::methods::{FilterDsl, SelectDsl},
+};
+use session::{create_session, generate_token};
+pub mod session;
+#[allow(dead_code)]
+pub fn register() {
+    let name: String = Input::new()
+        .with_prompt("Enter your name")
+        .interact()
+        .expect("Failed to get user input");
 
-
-
-
-pub fn create_session(data: Session) {
-    let password=SaltString::generate(data.password).to_string();
-
-
-    let  session = Session {
-        username: data.username,
-        password: password,
+    let password = Password::new()
+        .with_prompt("Enter your password")
+        .with_confirmation("Confirm password", "Passwords mismatching")
+        .interact()
+        .unwrap();
+    let token = generate_token(&name);
+    let hash = hash(password, DEFAULT_COST).unwrap();
+    let user = NewUser {
+        name: &name,
+        password: &hash,
+        session: &token,
     };
-    println!("{:?}", session.password);
+
+    create_session(name.clone(), token.clone());
+    // diesel::insert_into(schema::users::table)
+    //     .values(&user)
+    //     .execute(&mut crate::database::connect_database());
+
+    match diesel::insert_into(schema::users::table)
+        .values(&user)
+        .execute(&mut crate::database::connect_database())
+    {
+        Ok(_) => {
+            println!("User inserted successfully!");
+        }
+        Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+            println!("A user with that name already exists.");
+        }
+        Err(e) => {
+            println!("Failed to insert user: {:?}", e);
+        }
+    }
+    println!("User registered successfully");
+}
+
+pub fn login() {
+    loop {
+        let _name: String = Input::new()
+            .with_prompt("Enter your name")
+            .interact()
+            .expect("Failed to get user input");
+
+        let _password = Password::new()
+            .with_prompt("Enter your password")
+            .interact()
+            .unwrap();
+        use schema::users::dsl::*;
+
+        let user: Vec<User> = users
+            .filter(name.eq(&_name))
+            .select(User::as_select())
+            .load(&mut connect_database())
+            .expect("Error loading user");
+        if user.is_empty() {
+            println!("User not found");
+            continue;
+        }
+        let user: &User = user.first().unwrap();
+        // let data=bcrypt::verify(_password, &user.password).expect("msg");
+        match bcrypt::verify(_password, &user.password) {
+            Ok(true) => {
+                println!("User logged in successfully");
+                create_session(user.name.clone(), user.session.to_string());
+                break;
+            }
+            Ok(false) => {
+                println!("Invalid password");
+                continue;
+            }
+            Err(e) => {
+                eprintln!("Password verification error: {}", e);
+                println!("Error verifying password");
+                continue;
+            }
+        }
+    }
+}
+pub fn logout() {
+    fs::remove_file("session.json").expect("Failed to remove session file");
+    println!("Logged out successfully");
 }

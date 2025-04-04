@@ -1,4 +1,25 @@
 {
   "name": "bugject tracker",
-  "tasks": []
+  "tasks": [
+    {
+      "name": "finsish auth",
+      "created_at": "2025-04-04T06:34:31.138553800Z",
+      "complated": true
+    },
+    {
+      "name": "start working in the session and hashing the password",
+      "created_at": "2025-04-04T06:34:47.685656700Z",
+      "complated": true
+    },
+    {
+      "name": "working in the budget",
+      "created_at": "2025-04-04T16:12:30.115187400Z",
+      "complated": false
+    },
+    {
+      "name": "search about adding ai to this project",
+      "created_at": "2025-04-04T16:12:30.115188600Z",
+      "complated": false
+    }
+  ]
 }

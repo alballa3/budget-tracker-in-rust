@@ -1,1 +1,4 @@
 /target
+task.json
+database.db
+session.json

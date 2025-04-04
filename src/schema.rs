@@ -4,6 +4,7 @@ diesel::table! {
     budget (id) {
         id -> Integer,
         amount -> Integer,
+        user_id -> Integer,
         created_at -> Nullable<Timestamp>,
     }
 }
@@ -17,6 +18,8 @@ diesel::table! {
         created_at -> Nullable<Timestamp>,
     }
 }
+
+diesel::joinable!(budget -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     budget,
