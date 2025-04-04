@@ -1,0 +1,6 @@
+CREATE TABLE budget (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    amount INTEGER NOT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- default to current time
+)
