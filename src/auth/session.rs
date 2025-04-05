@@ -5,6 +5,7 @@ use std::{
     path::Path,
 };
 
+use dotenvy::dotenv;
 use jsonwebtoken::Header;
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Session {
@@ -18,6 +19,7 @@ struct Claims {
     exp: usize,  // expiry timestamp
 }
 pub fn generate_token(username: &str) -> String {
+    dotenv().ok();
     // To Generate The token
     let clamis = Claims {
         sub: username.to_string(),
@@ -48,7 +50,7 @@ pub fn create_session(username:String, token:String) {
         .write_all(json.as_bytes())
         .expect("Failed to write session to file");
 }
-pub fn _get_session() -> Session {
+pub fn get_session() -> Session {
     let mut config = match File::open("session.json") {
         Ok(file) => file,
         Err(e) => {

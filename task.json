@@ -14,11 +14,16 @@
     {
       "name": "working in the budget",
       "created_at": "2025-04-04T16:12:30.115187400Z",
-      "complated": false
+      "complated": true
     },
     {
       "name": "search about adding ai to this project",
       "created_at": "2025-04-04T16:12:30.115188600Z",
+      "complated": false
+    },
+    {
+      "name": "remove #[allow(dead code )]",
+      "created_at": "2025-04-05T15:25:16.848358700Z",
       "complated": false
     }
   ]

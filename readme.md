@@ -8,6 +8,7 @@
 - /search [keyword] - Search transactions
 
 ## Budget Controls
+The user must have only one budget per user
 - /budget set [amount] - Set budget for a category
 - /budget view - View all budget limits
 - /budget reset - Reset all budget limits
