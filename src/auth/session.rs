@@ -34,7 +34,7 @@ pub fn generate_token(username: &str) -> String {
     .expect("Failed to create token");
     return token;
 }
-pub fn create_session(username:String, token:String) {
+pub fn create_session(username: String, token: String) {
     let session = Session {
         username,
         token: Some(token),
@@ -50,7 +50,7 @@ pub fn create_session(username:String, token:String) {
         .write_all(json.as_bytes())
         .expect("Failed to write session to file");
 }
-pub fn get_session() -> Session {
+pub fn get_session() -> Option<Session> {
     let mut config = match File::open("session.json") {
         Ok(file) => file,
         Err(e) => {
@@ -67,5 +67,5 @@ pub fn get_session() -> Session {
         .expect("Failed to read session file");
     let session: Session =
         serde_json::from_str(&json).expect("Failed to convert session to string");
-    session
+    Some(session)
 }

@@ -1,7 +1,7 @@
 use diesel::{ExpressionMethods, RunQueryDsl, query_dsl::methods::FilterDsl};
-
+pub mod transaction;
 use crate::{
-    auth::get_user_id,
+    auth::{get_user_id, start},
     database::{
         connect_database,
         models::{Budget, NewBudget, UpdatedBudget},
@@ -11,6 +11,7 @@ use crate::{
 
 #[allow(dead_code)]
 pub fn add_buget(budget_amount: i32) {
+    start();
     let get_user = get_user_id();
     let id = match get_user {
         Some(id) => id,
@@ -39,13 +40,14 @@ pub fn add_buget(budget_amount: i32) {
 }
 #[allow(dead_code)]
 
-pub fn get_budget() -> i32 {
+pub fn get_budget() -> Option<Budget> {
+    start();
     let get_user = get_user_id();
     let id = match get_user {
         Some(id) => id,
         None => {
             println!("User not logged in");
-            return 0;
+            return None;
         }
     };
     let mut connect_database = connect_database();
@@ -53,15 +55,15 @@ pub fn get_budget() -> i32 {
         .filter(user_id.eq(id))
         .first::<Budget>(&mut connect_database);
     match budget {
-        Ok(budget) => budget.amount,
+        Ok(budget) => Some(budget),
         Err(_) => {
-            println!("User does not have a budget");
-            return 0;
+            return None;
         }
     }
 }
 #[allow(dead_code)]
 pub fn update_budget(budget_amount: i32) {
+    start();
     let get_user = get_user_id();
     let id = match get_user {
         Some(id) => id,
@@ -81,4 +83,19 @@ pub fn update_budget(budget_amount: i32) {
         Ok(_) => println!("budget Updated"),
         Err(err) => println!("Failed to update: {}", err),
     };
+}
+#[derive(clap::Subcommand)]
+pub enum BudgetCli {
+    /// Add a new budget
+    Add {
+        #[arg(short, long)]
+        amount: i32,
+    },
+    /// Update a budget
+    Update {
+        #[arg(short, long)]
+        amount: i32,
+    },
+    /// View a budget
+    View,
 }

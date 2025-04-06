@@ -48,3 +48,29 @@ pub struct NewUser<'a> {
     pub password: &'a String,
     pub session: &'a String,
 }
+
+#[derive(Selectable, Queryable)]
+#[diesel(table_name=crate::schema::transactions)]
+#[allow(dead_code)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct Transaction {
+    pub id: i32,
+    pub amount: i32,
+    pub description: String,
+    pub created_at: Option<NaiveDateTime>,
+    pub budget_id: i32,
+}
+#[derive(Insertable)]
+#[diesel(table_name=crate::schema::transactions)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct NewTransaction {
+    pub amount: i32,
+    pub description: String,
+    pub budget_id: i32,
+}
+#[derive(AsChangeset)]
+#[diesel(table_name=crate::schema::transactions)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+pub struct UpdatedTransaction {
+    pub amount: i32,
+}

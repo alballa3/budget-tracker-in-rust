@@ -15,9 +15,8 @@ use diesel::{
     ExpressionMethods, RunQueryDsl, SelectableHelper,
     query_dsl::methods::{FilterDsl, SelectDsl},
 };
-use session::{create_session, generate_token};
+use session::{create_session, generate_token, get_session};
 pub mod session;
-#[allow(dead_code)]
 pub fn register() {
     let name: String = Input::new()
         .with_prompt("Enter your name")
@@ -54,7 +53,6 @@ pub fn register() {
         }
     }
 }
-#[allow(dead_code)]
 pub fn login() {
     loop {
         let _name: String = Input::new()
@@ -97,17 +95,14 @@ pub fn login() {
         }
     }
 }
-#[allow(dead_code)]
 
 pub fn logout() {
     fs::remove_file("session.json").expect("Failed to remove session file");
     println!("Logged out successfully");
 }
 
-#[allow(dead_code)]
 pub fn get_user_id() -> Option<i32> {
-    let user = session::get_session();
-
+    let user = session::get_session().unwrap();
     match schema::users::dsl::users
         .filter(schema::users::dsl::name.eq(&user.username))
         .select(schema::users::dsl::id)
@@ -123,4 +118,25 @@ pub fn get_user_id() -> Option<i32> {
             None
         }
     }
+}
+
+pub fn start() {
+    match get_session() {
+        Some(_) => {
+            return;
+        }
+        None => {
+            print!("PLEASE LOGIN OR REGISTER FIRST");
+        }
+    }
+}
+
+#[derive(clap::Subcommand)]
+pub enum AuthCli {
+    /// Register a new user
+    Register,
+    /// Login a user
+    Login,
+    /// Logout a user
+    Logout,
 }
